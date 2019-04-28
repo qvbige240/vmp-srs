@@ -1,3 +1,6 @@
 *.swp
 *~
 *.tgz
+
+vmp-srs-*
+install

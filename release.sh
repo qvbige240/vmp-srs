@@ -5,6 +5,7 @@ WORKDIR="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" && pwd  )"
 echo "WORKDIR: $WORKDIR "
 cur_time=`date +%y%m%d`
 APP_DIR=${WORKDIR}/srs/trunk
+INSTALL_DIR=${WORKDIR}/install
 
 platform="centos"
 dst_platform=""
@@ -54,7 +55,7 @@ function compile()
     cd ${WORKDIR}/srs/trunk
     
     make clean
-    ./configure
+    ./configure --prefix=${INSTALL_DIR}
     if [ $? -ne 0  ]; then
         return 1
     fi
@@ -62,12 +63,17 @@ function compile()
     if [ $? -ne 0  ]; then
         return 1
     fi
+    make install
     
     cd -
 }
 
 function distribution()
 {
+    cp -Rf ${INSTALL_DIR}/* $PKG_DIR
+
+
+if false; then
     mkdir -p ${PKG_DIR}/bin
     mkdir -p ${PKG_DIR}/conf
 
@@ -80,7 +86,6 @@ function distribution()
     fi
 
 
-if false; then
     if [ -f ${WORKDIR}/bin/README.md ]; then
         cp -f ${WORKDIR}/bin/README.md $PKG_DIR
     fi

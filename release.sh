@@ -72,6 +72,9 @@ function distribution()
 {
     cp -Rf ${INSTALL_DIR}/* $PKG_DIR
 
+    if [ -f ${WORKDIR}/srs/trunk/startup.sh ]; then
+        cp -f ${WORKDIR}/srs/trunk/startup.sh $PKG_DIR/
+    fi
 
 if false; then
     mkdir -p ${PKG_DIR}/bin

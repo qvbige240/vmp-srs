@@ -186,6 +186,24 @@ public:
     virtual int serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r);
 };
 
+class SrsGoVmpStateStreams : public ISrsHttpHandler
+{
+public:
+    SrsGoVmpStateStreams();
+    virtual ~SrsGoVmpStateStreams();
+public:
+    virtual int serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r);
+};
+
+class SrsGoVmpCountStreams : public ISrsHttpHandler
+{
+public:
+    SrsGoVmpCountStreams();
+    virtual ~SrsGoVmpCountStreams();
+public:
+    virtual int serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r);
+};
+
 class SrsHttpApi : public SrsConnection
 {
 private:

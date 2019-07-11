@@ -146,6 +146,12 @@ private:
     virtual void http_hooks_on_unpublish();
     virtual int http_hooks_on_play();
     virtual void http_hooks_on_stop();
+    
+    //wison on_vmp
+    virtual int http_hooks_on_vmp_publish();
+    virtual void http_hooks_on_vmp_unpublish();
+    virtual int http_hooks_on_vmp_play();
+    virtual void http_hooks_on_vmp_stop();
 };
 
 #endif

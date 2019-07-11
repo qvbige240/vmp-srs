@@ -1432,6 +1432,9 @@ int SrsRtmpConn::http_hooks_on_publish()
 {
     int ret = ERROR_SUCCESS;
     
+    //wison on_vmp
+    http_hooks_on_vmp_publish();
+    
 #ifdef SRS_AUTO_HTTP_CALLBACK
     if (!_srs_config->get_vhost_http_hooks_enabled(req->vhost)) {
         return ret;
@@ -1467,6 +1470,9 @@ int SrsRtmpConn::http_hooks_on_publish()
 
 void SrsRtmpConn::http_hooks_on_unpublish()
 {
+	//wison on_vmp
+    http_hooks_on_vmp_unpublish();	
+	
 #ifdef SRS_AUTO_HTTP_CALLBACK
     if (!_srs_config->get_vhost_http_hooks_enabled(req->vhost)) {
         return;
@@ -1498,6 +1504,9 @@ void SrsRtmpConn::http_hooks_on_unpublish()
 int SrsRtmpConn::http_hooks_on_play()
 {
     int ret = ERROR_SUCCESS;
+    
+    //wison on_vmp
+    http_hooks_on_vmp_play();
     
 #ifdef SRS_AUTO_HTTP_CALLBACK
     if (!_srs_config->get_vhost_http_hooks_enabled(req->vhost)) {
@@ -1534,6 +1543,9 @@ int SrsRtmpConn::http_hooks_on_play()
 
 void SrsRtmpConn::http_hooks_on_stop()
 {
+	//wison on_vmp
+    http_hooks_on_vmp_stop();
+	
 #ifdef SRS_AUTO_HTTP_CALLBACK
     if (!_srs_config->get_vhost_http_hooks_enabled(req->vhost)) {
         return;
@@ -1558,6 +1570,165 @@ void SrsRtmpConn::http_hooks_on_stop()
     for (int i = 0; i < (int)hooks.size(); i++) {
         std::string url = hooks.at(i);
         SrsHttpHooks::on_stop(url, req);
+    }
+#endif
+
+    return;
+}
+
+//wison on_vmp
+int SrsRtmpConn::http_hooks_on_vmp_publish()
+{
+    int ret = ERROR_SUCCESS;
+    
+#ifdef SRS_AUTO_HTTP_CALLBACK
+    if (!_srs_config->get_vhost_http_hooks_enabled(req->vhost)) {
+        return ret;
+    }
+    
+    // the http hooks will cause context switch,
+    // so we must copy all hooks for the on_connect may freed.
+    // @see https://github.com/ossrs/srs/issues/475
+    vector<string> hooks;
+    
+    if (true) {
+        SrsConfDirective* conf = _srs_config->get_vhost_on_vmp_publish(req->vhost);
+        
+        if (!conf) {
+            srs_info("ignore the empty http callback: on_vmp_publish");
+            return ret;
+        }
+        
+        hooks = conf->args;
+    }
+    
+    for (int i = 0; i < (int)hooks.size(); i++) {
+        std::string url = hooks.at(i);
+        if ((ret = SrsHttpHooks::on_vmp_publish(url, req)) != ERROR_SUCCESS) {
+            srs_error("hook client on_vmp_publish failed. url=%s, ret=%d", url.c_str(), ret);
+            return ret;
+        }
+    }
+#endif
+
+    return ret;
+}
+
+void SrsRtmpConn::http_hooks_on_vmp_unpublish()
+{
+#ifdef SRS_AUTO_HTTP_CALLBACK
+    if (!_srs_config->get_vhost_http_hooks_enabled(req->vhost)) {
+        return;
+    }
+    
+    // the http hooks will cause context switch,
+    // so we must copy all hooks for the on_connect may freed.
+    // @see https://github.com/ossrs/srs/issues/475
+    vector<string> hooks;
+    
+    if (true) {
+        SrsConfDirective* conf = _srs_config->get_vhost_on_vmp_unpublish(req->vhost);
+        
+        if (!conf) {
+            srs_info("ignore the empty http callback: on_vmp_unpublish");
+            return;
+        }
+        
+        hooks = conf->args;
+    }
+    
+    for (int i = 0; i < (int)hooks.size(); i++) {
+        std::string url = hooks.at(i);
+        SrsHttpHooks::on_vmp_unpublish(url, req);
+    }
+#endif
+}
+
+int SrsRtmpConn::http_hooks_on_vmp_play()
+{
+    int ret = ERROR_SUCCESS;
+    
+    //wison
+    SrsStatistic* stat = SrsStatistic::instance();
+    SrsStatisticStream* stream = stat->find_stream(req->stream);
+    if(stream)
+    {
+    	stream->nb_players++;
+    }
+    
+#ifdef SRS_AUTO_HTTP_CALLBACK
+    if (!_srs_config->get_vhost_http_hooks_enabled(req->vhost)) {
+        return ret;
+    }
+    
+    // the http hooks will cause context switch,
+    // so we must copy all hooks for the on_connect may freed.
+    // @see https://github.com/ossrs/srs/issues/475
+    vector<string> hooks;
+    
+    if (true) {
+        SrsConfDirective* conf = _srs_config->get_vhost_on_vmp_play(req->vhost);
+        
+        if (!conf) {
+            srs_info("ignore the empty http callback: on_vmp_play");
+            return ret;
+        }
+        
+        hooks = conf->args;
+    }
+    
+    for (int i = 0; i < (int)hooks.size(); i++) {
+        std::string url = hooks.at(i);
+        if ((ret = SrsHttpHooks::on_vmp_play(url, req)) != ERROR_SUCCESS) {
+            srs_error("hook client on_vmp_play failed. url=%s, ret=%d", url.c_str(), ret);
+            return ret;
+        }
+    }
+#endif
+
+    return ret;
+}
+
+void SrsRtmpConn::http_hooks_on_vmp_stop()
+{
+	//wison	
+	SrsStatistic* stat = SrsStatistic::instance();
+    SrsStatisticStream* stream = stat->find_stream(req->stream);
+    if(stream)
+    {
+    	stream->nb_players--;
+    	
+    	//only last client to hook
+    	if(stream->nb_players > 0)
+    	{
+    		return;
+    	}
+    }
+	
+#ifdef SRS_AUTO_HTTP_CALLBACK
+    if (!_srs_config->get_vhost_http_hooks_enabled(req->vhost)) {
+        return;
+    }
+    
+    // the http hooks will cause context switch,
+    // so we must copy all hooks for the on_connect may freed.
+    // @see https://github.com/ossrs/srs/issues/475
+    vector<string> hooks;
+    
+    if (true) {
+        SrsConfDirective* conf = _srs_config->get_vhost_on_vmp_stop(req->vhost);
+        
+        if (!conf) {
+            srs_info("ignore the empty http callback: on_vmp_stop");
+            return;
+        }
+        
+        hooks = conf->args;
+    }
+    
+    for (int i = 0; i < (int)hooks.size(); i++) {
+        std::string url = hooks.at(i);
+        SrsHttpHooks::on_vmp_stop(url, req);
     }
 #endif
 

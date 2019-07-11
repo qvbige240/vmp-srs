@@ -71,6 +71,8 @@ public:
     int connection_cid;
     int nb_clients;
     uint64_t nb_frames;
+    
+    int nb_players;	//wison
 public:
     /**
     * stream total kbps.
@@ -158,6 +160,7 @@ public:
 public:
     virtual SrsStatisticVhost* find_vhost(int vid);
     virtual SrsStatisticStream* find_stream(int sid);
+    virtual SrsStatisticStream* find_stream(std::string stream);	//wison
     virtual SrsStatisticClient* find_client(int cid);
 public:
     /**

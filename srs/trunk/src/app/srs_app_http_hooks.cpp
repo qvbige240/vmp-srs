@@ -417,6 +417,120 @@ int SrsHttpHooks::on_hls_notify(int cid, std::string url, SrsRequest* req, std::
     return ret;
 }
 
+//wison on_vmp
+int SrsHttpHooks::on_vmp_publish(string url, SrsRequest* req)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int client_id = _srs_context->get_id();
+    
+    std::stringstream ss;
+    ss << SRS_JOBJECT_START
+        << SRS_JFIELD_STR("action", "on_publish") << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("stream", req->stream)
+        << SRS_JOBJECT_END;
+        
+    std::string data = ss.str();
+    std::string res;
+    int status_code;
+    if ((ret = do_post(url, data, status_code, res)) != ERROR_SUCCESS) {
+        srs_error("http post on_vmp_publish uri failed. "
+            "client_id=%d, url=%s, request=%s, response=%s, code=%d, ret=%d",
+            client_id, url.c_str(), data.c_str(), res.c_str(), status_code, ret);
+        return ret;
+    }
+    
+    srs_trace("http hook on_vmp_publish success. "
+        "client_id=%d, url=%s, request=%s, response=%s, ret=%d",
+        client_id, url.c_str(), data.c_str(), res.c_str(), ret);
+    
+    return ret;
+}
+int SrsHttpHooks::on_vmp_unpublish(string url, SrsRequest* req)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int client_id = _srs_context->get_id();
+    
+    std::stringstream ss;
+    ss << SRS_JOBJECT_START
+        << SRS_JFIELD_STR("action", "on_unpublish") << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("stream", req->stream)
+        << SRS_JOBJECT_END;
+        
+    std::string data = ss.str();
+    std::string res;
+    int status_code;
+    if ((ret = do_post(url, data, status_code, res)) != ERROR_SUCCESS) {
+        srs_error("http post on_vmp_unpublish uri failed. "
+            "client_id=%d, url=%s, request=%s, response=%s, code=%d, ret=%d",
+            client_id, url.c_str(), data.c_str(), res.c_str(), status_code, ret);
+        return ret;
+    }
+    
+    srs_trace("http hook on_vmp_unpublish success. "
+        "client_id=%d, url=%s, request=%s, response=%s, ret=%d",
+        client_id, url.c_str(), data.c_str(), res.c_str(), ret);
+    
+    return ret;
+}
+int SrsHttpHooks::on_vmp_play(string url, SrsRequest* req)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int client_id = _srs_context->get_id();
+    
+    std::stringstream ss;
+    ss << SRS_JOBJECT_START
+        << SRS_JFIELD_STR("action", "on_play") << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("stream", req->stream)
+        << SRS_JOBJECT_END;
+        
+    std::string data = ss.str();
+    std::string res;
+    int status_code;
+    if ((ret = do_post(url, data, status_code, res)) != ERROR_SUCCESS) {
+        srs_error("http post on_vmp_play uri failed. "
+            "client_id=%d, url=%s, request=%s, response=%s, code=%d, ret=%d",
+            client_id, url.c_str(), data.c_str(), res.c_str(), status_code, ret);
+        return ret;
+    }
+    
+    srs_trace("http hook on_vmp_play success. "
+        "client_id=%d, url=%s, request=%s, response=%s, ret=%d",
+        client_id, url.c_str(), data.c_str(), res.c_str(), ret);
+    
+    return ret;
+}
+int SrsHttpHooks::on_vmp_stop(string url, SrsRequest* req)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int client_id = _srs_context->get_id();
+    
+    std::stringstream ss;
+    ss << SRS_JOBJECT_START
+        << SRS_JFIELD_STR("action", "on_stop") << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("stream", req->stream)
+        << SRS_JOBJECT_END;
+        
+    std::string data = ss.str();
+    std::string res;
+    int status_code;
+    if ((ret = do_post(url, data, status_code, res)) != ERROR_SUCCESS) {
+        srs_error("http post on_vmp_stop uri failed. "
+            "client_id=%d, url=%s, request=%s, response=%s, code=%d, ret=%d",
+            client_id, url.c_str(), data.c_str(), res.c_str(), status_code, ret);
+        return ret;
+    }
+    
+    srs_trace("http hook on_vmp_stop success. "
+        "client_id=%d, url=%s, request=%s, response=%s, ret=%d",
+        client_id, url.c_str(), data.c_str(), res.c_str(), ret);
+    
+    return ret;
+}
+
 int SrsHttpHooks::do_post(std::string url, std::string req, int& code, string& res)
 {
     int ret = ERROR_SUCCESS;

@@ -1916,6 +1916,7 @@ int SrsConfig::check_config()
                     if (m != "enabled" && m != "on_connect" && m != "on_close" && m != "on_publish"
                         && m != "on_unpublish" && m != "on_play" && m != "on_stop"
                         && m != "on_dvr" && m != "on_hls" && m != "on_hls_notify"
+                        && m != "on_vmp_publish" && m != "on_vmp_unpublish" && m != "on_vmp_play" && m != "on_vmp_stop" //wison on_vmp
                         ) {
                         ret = ERROR_SYSTEM_CONFIG_INVALID;
                         srs_error("unsupported vhost http_hooks directive %s, ret=%d", m.c_str(), ret);
@@ -2863,6 +2864,48 @@ SrsConfDirective* SrsConfig::get_vhost_on_hls_notify(string vhost)
     }
     
     return conf->get("on_hls_notify");
+}
+
+//wison on_vmp
+SrsConfDirective* SrsConfig::get_vhost_on_vmp_publish(string vhost)
+{
+    SrsConfDirective* conf = get_vhost_http_hooks(vhost);
+
+    if (!conf) { 
+        return NULL;
+    }
+    
+    return conf->get("on_vmp_publish");
+}
+SrsConfDirective* SrsConfig::get_vhost_on_vmp_unpublish(string vhost)
+{
+    SrsConfDirective* conf = get_vhost_http_hooks(vhost);
+
+    if (!conf) { 
+        return NULL;
+    }
+    
+    return conf->get("on_vmp_unpublish");
+}
+SrsConfDirective* SrsConfig::get_vhost_on_vmp_play(string vhost)
+{
+    SrsConfDirective* conf = get_vhost_http_hooks(vhost);
+
+    if (!conf) { 
+        return NULL;
+    }
+    
+    return conf->get("on_vmp_play");
+}
+SrsConfDirective* SrsConfig::get_vhost_on_vmp_stop(string vhost)
+{
+    SrsConfDirective* conf = get_vhost_http_hooks(vhost);
+
+    if (!conf) { 
+        return NULL;
+    }
+    
+    return conf->get("on_vmp_stop");
 }
 
 bool SrsConfig::get_bw_check_enabled(string vhost)

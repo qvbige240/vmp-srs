@@ -626,6 +626,13 @@ public:
      * @return the on_hls_notify callback directive, the args is the url to callback.
      */
     virtual SrsConfDirective*   get_vhost_on_hls_notify(std::string vhost);
+    
+    //wison on_vmp
+    virtual SrsConfDirective*   get_vhost_on_vmp_publish(std::string vhost);
+    virtual SrsConfDirective*   get_vhost_on_vmp_unpublish(std::string vhost);
+    virtual SrsConfDirective*   get_vhost_on_vmp_play(std::string vhost);
+    virtual SrsConfDirective*   get_vhost_on_vmp_stop(std::string vhost);
+    
 // bwct(bandwidth check tool) section
 public:
     /**

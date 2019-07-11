@@ -832,6 +832,14 @@ int SrsServer::http_handle()
         return ret;
     }
     
+    //wison
+    if ((ret = http_api_mux->handle("/streammedia/v1/stream/state", new SrsGoVmpStateStreams())) != ERROR_SUCCESS) {
+        return ret;
+    }
+	if ((ret = http_api_mux->handle("/streammedia/v1/stream/count", new SrsGoVmpCountStreams())) != ERROR_SUCCESS) {
+        return ret;
+    }
+	    
     // TODO: FIXME: for console.
     // TODO: FIXME: support reload.
     std::string dir = _srs_config->get_http_stream_dir() + "/console";

@@ -119,6 +119,12 @@ public:
      * @param cid the source connection cid, for the on_dvr is async call.
      */
     static int on_hls_notify(int cid, std::string url, SrsRequest* req, std::string ts_url, int nb_notify);
+    
+    //wison on_vmp
+    static int on_vmp_publish(std::string url, SrsRequest* req);
+    static int on_vmp_unpublish(std::string url, SrsRequest* req);
+    static int on_vmp_play(std::string url, SrsRequest* req);
+    static int on_vmp_stop(std::string url, SrsRequest* req);
 private:
     static int do_post(std::string url, std::string req, int& code, std::string& res);
 };

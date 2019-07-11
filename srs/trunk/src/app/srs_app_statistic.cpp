@@ -286,6 +286,19 @@ SrsStatisticStream* SrsStatistic::find_stream(int sid)
     return NULL;
 }
 
+//wison
+SrsStatisticStream* SrsStatistic::find_stream(string stream)
+{
+    std::map<int64_t, SrsStatisticStream*>::iterator it;
+    for (it = streams.begin(); it != streams.end(); it++)
+    {
+    	if(stream.compare(it->second->stream) == 0){
+    		return it->second;
+    	}
+    }
+    return NULL;
+}
+
 SrsStatisticClient* SrsStatistic::find_client(int cid)
 {
     std::map<int, SrsStatisticClient*>::iterator it;

@@ -852,6 +852,189 @@ int SrsGoApiError::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
 }
 
 
+SrsGoVmpStateStreams::SrsGoVmpStateStreams()
+{
+}
+
+SrsGoVmpStateStreams::~SrsGoVmpStateStreams()
+{
+}
+
+int SrsGoVmpStateStreams::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
+{
+	int ret = ERROR_SUCCESS;
+
+	SrsStatistic* stat = SrsStatistic::instance();
+	std::stringstream ss;
+
+	// path: {pattern}{stream_id}
+	// e.g. /streammedia/v1/stream/state/100     pattern= /streammedia/v1/stream/state, stream_id=100
+
+	string sid = "";
+	if (r->is_http_post()) {
+		string root;
+		r->body_read_all(root);
+
+		SrsJsonObject* body = (SrsJsonObject*)SrsJsonAny::loads((char*)root.c_str());
+		if (body) {
+			string key_media = "stream";
+			SrsJsonAny* obj_stream  = body->get_property(key_media);
+			if (obj_stream) {
+				sid = obj_stream->to_str();
+			}
+			SrsAutoFree(SrsJsonObject, body);
+		}
+
+		SrsStatisticStream* stream = NULL;
+		if (sid.length() > 0 && (stream = stat->find_stream(sid)) == NULL) {
+			ret = ERROR_RTMP_STREAM_NOT_FOUND;
+			srs_error("stream stream_id=%d not found. ret=%d", sid, ret);
+			//return srs_api_response_code(w, r, ret);
+		}
+
+		std::stringstream data;
+		if (!stream) {
+			ret = stat->dumps_streams(data);
+
+			ss << SRS_JOBJECT_START
+				<< SRS_JFIELD_BOOL("state", false)
+				<< SRS_JOBJECT_END;
+		} else {
+			ret = stream->dumps(data);
+
+			ss << SRS_JOBJECT_START
+				<< SRS_JFIELD_BOOL("state", stream->active)
+				<< SRS_JOBJECT_END;
+		}
+
+		return srs_api_response(w, r, ss.str());
+	}
+
+#if 0
+	if (r->is_http_get()) {
+		std::stringstream data;
+
+		string sid = r->parse_rest_id_string(entry->pattern);
+
+		SrsStatisticStream* stream = NULL;
+		if (sid.length() > 0 && (stream = stat->find_stream(sid)) == NULL) {
+			ret = ERROR_RTMP_STREAM_NOT_FOUND;
+			srs_error("stream stream_id=%d not found. ret=%d", sid, ret);
+			//return srs_api_response_code(w, r, ret);
+		}
+
+		if (!stream) {
+			ret = stat->dumps_streams(data);
+
+			ss << SRS_JOBJECT_START
+				<< SRS_JFIELD_BOOL("state", false)
+				<< SRS_JOBJECT_END;
+		} else {
+			ret = stream->dumps(data);
+			
+			ss << SRS_JOBJECT_START
+				<< SRS_JFIELD_BOOL("state", stream->active)
+				<< SRS_JOBJECT_END;
+		}
+
+		return srs_api_response(w, r, ss.str());
+	}
+#endif
+	return ret;
+}
+
+SrsGoVmpCountStreams::SrsGoVmpCountStreams()
+{
+}
+
+SrsGoVmpCountStreams::~SrsGoVmpCountStreams()
+{
+}
+
+int SrsGoVmpCountStreams::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
+{
+	int ret = ERROR_SUCCESS;
+
+	SrsStatistic* stat = SrsStatistic::instance();
+	std::stringstream ss;
+
+	// e.g. /streammedia/v1/stream/count
+
+	string sid = "";
+	if (r->is_http_post()) {
+		string root;
+		r->body_read_all(root);
+
+		SrsJsonObject* body = (SrsJsonObject*)SrsJsonAny::loads((char*)root.c_str());
+		if (body) {
+			string key_media = "stream";
+			SrsJsonAny* obj_stream  = body->get_property(key_media);
+			if (obj_stream) {
+				sid = obj_stream->to_str();
+			}
+			SrsAutoFree(SrsJsonObject, body);
+		}
+
+		SrsStatisticStream* stream = NULL;
+		if (sid.length() > 0 && (stream = stat->find_stream(sid)) == NULL) {
+			ret = ERROR_RTMP_STREAM_NOT_FOUND;
+			srs_error("stream stream_id=%d not found. ret=%d", sid, ret);
+			//return srs_api_response_code(w, r, ret);
+		}
+
+		std::stringstream data;
+		if (!stream) {
+			ret = stat->dumps_streams(data);
+
+			ss << SRS_JOBJECT_START
+				<< SRS_JFIELD_ORG("count", 0)
+				<< SRS_JOBJECT_END;
+		} else {
+			ret = stream->dumps(data);
+
+			ss << SRS_JOBJECT_START
+				<< SRS_JFIELD_ORG("count", stream->nb_players)
+				<< SRS_JOBJECT_END;
+		}
+
+		return srs_api_response(w, r, ss.str());
+	}
+
+#if 0
+	if (r->is_http_get()) {
+		std::stringstream data;
+
+		string sid = r->parse_rest_id_string(entry->pattern);
+
+		SrsStatisticStream* stream = NULL;
+		if (sid.length() > 0 && (stream = stat->find_stream(sid)) == NULL) {
+			ret = ERROR_RTMP_STREAM_NOT_FOUND;
+			srs_error("stream stream_id=%d not found. ret=%d", sid, ret);
+			//return srs_api_response_code(w, r, ret);
+		}
+
+		if (!stream) {
+			ret = stat->dumps_streams(data);
+
+			ss << SRS_JOBJECT_START
+				<< SRS_JFIELD_ORG("count", 0)
+				<< SRS_JOBJECT_END;
+		} else {
+			ret = stream->dumps(data);
+
+			ss << SRS_JOBJECT_START
+				<< SRS_JFIELD_ORG("count", stream->nb_players)
+				<< SRS_JOBJECT_END;
+		}
+
+		return srs_api_response(w, r, ss.str());
+	}
+#endif
+
+	return ret;
+}
+
+
 SrsHttpApi::SrsHttpApi(IConnectionManager* cm, st_netfd_t fd, SrsHttpServeMux* m)
     : SrsConnection(cm, fd)
 {
